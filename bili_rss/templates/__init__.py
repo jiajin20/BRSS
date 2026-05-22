@@ -1,0 +1,1 @@
+"""BiliRSS HTML templates"""

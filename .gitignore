@@ -1,0 +1,118 @@
+# ============================================
+# BiliRSS Project .gitignore
+# ============================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+MANIFEST
+dist/
+build/
+*.egg-info/
+installdebug/
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# --- IDEs & Editors ---
+# PyCharm
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+config.json
+secrets.yml
+*.pem
+*.key
+
+# --- Logs & Databases ---
+*.log
+*.sqlite
+*.db
+logs/
+
+# --- OS Files ---
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# --- Testing & Coverage ---
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+*.cover
+
+# --- Temporary & Cache ---
+*.tmp
+*.bak
+*.cache
+*.pid
+*.seed
+
+# --- Deployment & Build ---
+deploy/__pycache__/
+*.spec
+build/
+dist/
+
+# --- Project-Specific ---
+# 如果有用户上传的文件
+uploads/
+media/
+
+# WorkBuddy context
+workbuddy-context/
+
+# 模板缓存（如果有）
+*.template.pyc
+
+# --- Documentation Build ---
+docs/
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints
+*.ipynb
+
+# --- Others ---
+*.bak.*
+*.orig
+
+
+# --- local_data ---
+local_data/

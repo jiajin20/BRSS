@@ -1,0 +1,3 @@
+# BiliRSS - Python dependencies
+Flask>=2.0
+paramiko>=2.0
