@@ -5,7 +5,7 @@
 将 B 站 UP 主的视频自动提取音频，生成 苹果（播客）兼容的 RSS 播客订阅源，配合 Web 管理面板进行统一的下载、分类、合辑和文件管理。
 
 ---
-
+[Bug反馈链接](https://my.feishu.cn/share/base/form/shrcnCWSzz9ZcX8dZTRsa09a8S2)
 ## 目录
 
 - [功能特性](#功能特性)
