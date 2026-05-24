@@ -92,7 +92,7 @@ pip install -r requirements.txt
 
 ```bash
 # 1. 克隆/进入项目
-cd musicxx-main
+cd BRSS
 
 # 2. 安装依赖
 pip install -r requirements.txt
