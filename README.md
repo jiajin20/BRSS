@@ -130,6 +130,7 @@ python run_local.py
 ### 方式一：自动部署（推荐）
 
 项目自带部署脚本，上传 + 重启 + 验证一气呵成：
+先在deploy_config.py 里填上服务器的信息
 
 ```bash
 cd BRSS
