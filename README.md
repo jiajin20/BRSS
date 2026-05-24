@@ -132,7 +132,7 @@ python run_local.py
 项目自带部署脚本，上传 + 重启 + 验证一气呵成：
 
 ```bash
-cd musicxx-main
+cd BRSS
 python deploy/deploy.py
 ```
 
