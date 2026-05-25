@@ -95,6 +95,7 @@ media/
 
 # WorkBuddy context
 workbuddy-context/
+.workbuddy/
 
 # 模板缓存（如果有）
 *.template.pyc
