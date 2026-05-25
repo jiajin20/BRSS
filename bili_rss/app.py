@@ -16,7 +16,7 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from flask import Flask, render_template_string, request, redirect, url_for, jsonify, send_from_directory
+from flask import Flask, render_template_string, request, redirect, url_for, jsonify, send_from_directory, has_request_context
 
 BASE_DIR = Path('/opt/bili-rss')
 AUDIO_DIR = BASE_DIR / 'audio'
@@ -26,6 +26,35 @@ COOKIE_DIR = BASE_DIR / 'cookies'
 COVER_DIR = BASE_DIR / 'covers'
 DB_FILE = BASE_DIR / 'db.json'
 DOWNLOAD_STATUS = {}
+db_lock = threading.Lock()  # 保护 db.json 的并发读写
+
+# RSS 基础 URL，用于生成 enclosure 音频链接。
+# 优先级：环境变量 BILI_RSS_BASE_URL > 代码中显式设置 > 本默认值
+# 服务器端部署示例（Linux systemd）：
+#   Environment="BILI_RSS_BASE_URL=http://47.108.188.75"
+# run_local.py 会自动 patch 为 http://127.0.0.1:5000
+import os as _os
+BASE_URL = _os.environ.get('BILI_RSS_BASE_URL', 'http://服务器IP')
+del _os
+
+# 记录最近一次有请求上下文时的访问地址，供后台线程生成 RSS 时使用
+_last_known_base_url = None
+
+def get_base_url():
+    """获取当前 base_url。
+    有请求上下文时：用 Host 请求头拼出当前访问地址（自适应 IP / 域名 / 反代）
+    无请求上下文时（后台线程）：用最近记录的访问地址，否则用 BASE_URL 常量
+    """
+    global _last_known_base_url
+    if has_request_context():
+        # 优先用 X-Forwarded-Host（反代场景），否则用 Host 头
+        host = request.headers.get('X-Forwarded-Host') or request.host
+        # 协议：优先 X-Forwarded-Proto，否则用请求的 scheme
+        scheme = request.headers.get('X-Forwarded-Proto') or request.scheme
+        url = f'{scheme}://{host}'.rstrip('/')
+        _last_known_base_url = url
+        return url
+    return _last_known_base_url or BASE_URL
 
 CST = timezone(timedelta(hours=8))
 SERVICE_START_TIME = time.time()
@@ -267,14 +296,15 @@ def download_audio(task_id, urls, cat_id, ip, cookie_str=None, audio_format='mp3
         except Exception as e:
             DOWNLOAD_STATUS[task_id]['message'] = f'异常: {str(e)[:80]}'
 
-    db = load_db()
-    for task in db['tasks']:
-        if task['id'] == task_id:
-            existing = set(task.get('bv_ids', []))
-            task['bv_ids'] = list(existing | set(all_bv_ids))
-            task['status'] = 'completed'
-            break
-    save_db(db)
+    with db_lock:
+        db = load_db()
+        for task in db['tasks']:
+            if task['id'] == task_id:
+                existing = set(task.get('bv_ids', []))
+                task['bv_ids'] = list(existing | set(all_bv_ids))
+                task['status'] = 'completed'
+                break
+        save_db(db)
 
     generate_rss()
     DOWNLOAD_STATUS[task_id] = {
@@ -367,13 +397,14 @@ def download_up_videos(task_id, uid, cat_id, ip, cookie_str=None, audio_format='
         if already_exist:
             DOWNLOAD_STATUS[task_id]['message'] = f'发现 {len(bv_ids)} 个视频（{len(already_exist)} 个已下载），正在下载 {len(to_download)} 个新视频...'
 
-        db = load_db()
-        for task in db['tasks']:
-            if task['id'] == task_id:
-                existing = set(task.get('bv_ids', []))
-                task['bv_ids'] = list(existing | set(bv_ids))
-                break
-        save_db(db)
+        with db_lock:
+            db = load_db()
+            for task in db['tasks']:
+                if task['id'] == task_id:
+                    existing = set(task.get('bv_ids', []))
+                    task['bv_ids'] = list(existing | set(bv_ids))
+                    break
+            save_db(db)
 
         if to_download:
             urls = [f'https://www.bilibili.com/video/{bv}' for bv in to_download]
@@ -406,8 +437,13 @@ def download_up_videos(task_id, uid, cat_id, ip, cookie_str=None, audio_format='
 
 # ========== RSS Generation ==========
 def generate_rss():
+    """生成所有 RSS 文件。
+    有请求上下文时自动使用当前访问地址（自适应 IP / 域名 / 反代）；
+    后台线程调用时回退到最近记录的访问地址或 BASE_URL 常量。
+    """
     db = load_db()
-    base_url = 'http://服务器IP'
+    base_url = get_base_url()
+    RSS_DIR.mkdir(parents=True, exist_ok=True)  # 确保 RSS 目录存在，避免写文件时崩溃
 
     # Per-category RSS
     for cat in db['categories']:

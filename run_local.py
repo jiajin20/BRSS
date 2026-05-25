@@ -25,6 +25,7 @@ app_module.RSS_DIR = LOCAL_DATA / 'rss'
 app_module.COOKIE_DIR = LOCAL_DATA / 'cookies'
 app_module.COVER_DIR = LOCAL_DATA / 'covers'
 app_module.DB_FILE = LOCAL_DATA / 'db.json'
+app_module.BASE_URL = 'http://127.0.0.1:5000'  # 本地模式：音频 enclosure URL 指向本机
 
 # ---- 启动 ----
 print(f"[BiliRSS] 本地模式，数据目录: {LOCAL_DATA}")
