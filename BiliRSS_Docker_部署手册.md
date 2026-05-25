@@ -14,7 +14,8 @@
 4. [日常更新操作](#4-日常更新操作)
 5. [卸载服务](#5-卸载服务)
 6. [常见问题与解决方案](#6-常见问题与解决方案)
-7. [面板部署（推荐使用Docker Compose 一键部署）](#7面板部署（推荐使用Docker Compose 一键部署）)
+7. [面板部署](#7-面板部署)
+
 
 ---
 
@@ -504,8 +505,9 @@ Test-NetConnection -ComputerName <服务器公网IP> -Port 5000
 
 ---
 
-## 7.面板部署（推荐使用Docker Compose 一键部署）
+## 7.面板部署
 
+（推荐使用Docker Compose 一键部署）
 `docker-compose.yml` 和 `Dockerfile`可以在代码仓库里下载
 
 ### 7.1 1Panel 可视化部署（推荐）
