@@ -1,0 +1,23 @@
+services:
+  bilirss:
+    build: .
+    container_name: bilirss
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-5000}:5000"
+    environment:
+      - BILI_RSS_BASE_URL=${BILI_RSS_BASE_URL:-http://127.0.0.1:5000}
+      - TZ=Asia/Shanghai
+    volumes:
+      # 持久化数据目录（音频、元数据、RSS、数据库）
+      - ./data/audio:/opt/bili-rss/audio
+      - ./data/meta:/opt/bili-rss/meta
+      - ./data/rss:/opt/bili-rss/rss
+      - ./data/cookies:/opt/bili-rss/cookies
+      - ./data/covers:/opt/bili-rss/covers
+      - ./data/db.json:/opt/bili-rss/db.json  # 文件挂载，不是目录
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
